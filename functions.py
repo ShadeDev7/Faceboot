@@ -10,18 +10,39 @@ def get_config() -> dict | None:
 
     config_keys = config.keys()
 
+    """
+    Casos en los que está mal la config:
+        if 
+
+
+        key not in config_keys
+        config[key] not in CONFIG_OBJECT[key]
+    """
+
     for key in CONFIG_OBJECT.keys():
-        if (key not in config_keys) or (config[key] not in CONFIG_OBJECT[key]):
-            return
+        keyExists = key in config_keys
+        keyValues = CONFIG_OBJECT[key]
+
+        if keyExists and (not keyValues or config[key] in keyValues):
+            continue
+
+        return
 
     return config
 
 
 def create_config() -> dict:
+    username = get_input("Facebook Account Username: ")
+    password = get_input("Facebook Account Password: ")
     lang = get_input("Please select your language", LANG_OPTIONS)
     visuals = get_input("Do you want to activate bot visuals?", VISUALS_OPTIONS)
 
-    config = {"lang": lang, "visuals": visuals}
+    config = {
+        "username": username,
+        "password": password,
+        "lang": lang,
+        "visuals": visuals,
+    }
 
     create_json_file("config", config)
 

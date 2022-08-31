@@ -16,10 +16,18 @@ def read_file(file: str) -> any:
         return
 
 
-def get_input(prompt: str, options: list[dict]) -> str:
+def get_input(prompt: str, options: list = []) -> str:
     while True:
         try:
             print(prompt)
+
+            if not options:
+                response = input(">>> ")
+
+                if response:
+                    return response
+
+                continue
 
             for i, option in enumerate(options):
                 print(f"{i + 1}. {option['display']}")

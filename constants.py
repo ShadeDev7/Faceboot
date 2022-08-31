@@ -11,7 +11,12 @@ MESSAGES = {
 }
 
 
-CONFIG_OBJECT = {"lang": ["EN", "ES"], "visuals": [True, False]}
+CONFIG_OBJECT = {
+    "username": [],
+    "password": [],
+    "lang": ["EN", "ES"],
+    "visuals": [True, False],
+}
 
 LANG_OPTIONS = [
     {"display": "English", "value": "EN"},
