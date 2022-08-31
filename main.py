@@ -10,9 +10,9 @@ def main() -> None:
 
     config = get_config() or create_config()
 
-    logger = Logger(config["lang"])
+    logger = Logger()
 
-    logger.log("welcome")
+    logger.log(f"Welcome, {config['username']}!", "DEBUG")
 
 
 if __name__ == "__main__":

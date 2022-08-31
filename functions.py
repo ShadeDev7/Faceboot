@@ -1,5 +1,5 @@
 from utils import read_file, get_input, create_json_file
-from constants import CONFIG_OBJECT, LANG_OPTIONS, VISUALS_OPTIONS
+from constants import CONFIG_OBJECT, VISUALS_OPTIONS
 
 
 def get_config() -> dict | None:
@@ -34,13 +34,11 @@ def get_config() -> dict | None:
 def create_config() -> dict:
     username = get_input("Facebook Account Username: ")
     password = get_input("Facebook Account Password: ")
-    lang = get_input("Please select your language", LANG_OPTIONS)
     visuals = get_input("Do you want to activate bot visuals?", VISUALS_OPTIONS)
 
     config = {
         "username": username,
         "password": password,
-        "lang": lang,
         "visuals": visuals,
     }
 

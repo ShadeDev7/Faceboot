@@ -1,7 +1,7 @@
 import os
 import time
 
-from constants import VERSION, MESSAGES
+from constants import VERSION
 
 COLORS = {
     "DEBUG": "\033[32m",
@@ -12,20 +12,18 @@ COLORS = {
 
 
 class Logger:
-    def __init__(self, lang: str) -> None:
-        self.__lang = lang
-
+    def __init__(self) -> None:
         os.makedirs("./logs", exist_ok=True)
 
-    def log(self, message_id: str) -> None:
-        message_data = MESSAGES[message_id]
-        message_type = message_data["messageType"]
+    def log(self, message: str, message_type: str) -> None:
+        current_time = time.strftime("%H:%M:%S")
+        current_date = time.strftime("%d-%m-%Y")
 
-        message = f">> [v{VERSION} | {time.strftime('%H:%M:%S')}] ¦ [{message_type}] ¦ {message_data['variants'][self.__lang]}"
+        formattedMessage = f">> [v{VERSION} | {current_time}] ¦ [{message_type}] ¦ {message}"
 
-        print(COLORS[message_type] + message + COLORS["RESET"])
+        print(COLORS[message_type] + formattedMessage + COLORS["RESET"])
 
         with open(
-            f"./logs/{time.strftime('%d-%m-%Y')}.txt", "a+", encoding="utf-8"
+            f"./logs/{current_date}.txt", "a+", encoding="utf-8"
         ) as f:
-            f.write(message + "\n")
+            f.write(formattedMessage + "\n")
