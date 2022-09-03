@@ -1,7 +1,7 @@
 import os
 
-from classes import Logger
-from functions import get_config, create_config, initialize_driver, login
+from classes import Bot
+from functions import get_config, create_config
 from constants import VERSION
 
 
@@ -10,19 +10,8 @@ def main() -> None:
 
     config = get_config() or create_config()
 
-    logger = Logger()
-    logger.log(f"Welcome, {config['username']}!", "DEBUG")
-
-    driver = initialize_driver(config["visuals"])
-
-    driver.get("https://mbasic.facebook.com")
-
-    logged = login(driver, config["username"], config["password"])
-
-    if logged:
-        logger.log("Logged.", "EVENT")
-    else:
-        logger.log("Couldn't log in.", "ERROR")
+    bot = Bot(config)
+    bot.login()
 
     os.system("pause")
 
