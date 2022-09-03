@@ -21,3 +21,5 @@ DRIVER_ARGUMENTS = [
 ]
 
 BROWSER_URL = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+
+LOADING_TIMEOUT = 5
