@@ -1,40 +1,28 @@
-from utils import read_file, get_input, create_json_file
-from constants import CONFIG_OBJECT, VISUALS_OPTIONS
-
-
-def get_config() -> dict | None:
-    config = read_file("config.json")
-
-    if config is None:
-        return
-
-    config_keys = config.keys()
-
-    for key in CONFIG_OBJECT.keys():
-        possible_values = CONFIG_OBJECT[key]
-        has_infinite_values = len(possible_values) == 0
-
-        if (
-            key not in config_keys
-            or (has_infinite_values and type(config[key]) != str)
-            or (not has_infinite_values and config[key] not in possible_values)
-        ):
-            return
-
-    return config
+from utils import get_input
+from constants import (
+    CALCULATED_TIME_OPTIONS,
+    MODE_OPTIONS,
+    STATIC_TIME_OPTIONS,
+    VISUALS_OPTIONS,
+)
 
 
 def create_config() -> dict:
-    username = get_input("Facebook Account Username: ")
+    username = get_input("Facebook Account Username/Email: ")
     password = get_input("Facebook Account Password: ")
     visuals = get_input("Do you want to activate bot visuals?", VISUALS_OPTIONS)
+    mode = get_input("What mode do you want to use?", MODE_OPTIONS)
+    st, ct = None, None
 
-    config = {
+    if mode == "ST":
+        st = get_input("Select the amount of static time:", STATIC_TIME_OPTIONS)
+    else:
+        ct = get_input("Select the amount of calculated time:", CALCULATED_TIME_OPTIONS)
+
+    return {
         "username": username,
         "password": password,
         "visuals": visuals,
+        "mode": mode,
+        "ST" if st else "CT": st if st else ct,
     }
-
-    create_json_file("config", config)
-
-    return config

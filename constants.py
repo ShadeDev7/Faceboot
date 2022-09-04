@@ -1,14 +1,25 @@
 VERSION = "0.0.0"
 
-CONFIG_OBJECT = {
-    "username": [],
-    "password": [],
-    "visuals": [True, False],
-}
-
 VISUALS_OPTIONS = [
     {"display": "Yes", "value": True},
     {"display": "No", "value": False},
+]
+
+MODE_OPTIONS = [
+    {"display": "Static Time", "value": "ST"},
+    {"display": "Calculated Time", "value": "CT"},
+]
+
+STATIC_TIME_OPTIONS = [
+    {"display": "Every 60 Minutes [SAFEST]", "value": 60},
+    {"display": "Every 30 Minutes [NORMAL]", "value": 30},
+    {"display": "Every 15 Minutes [RISKY]", "value": 15},
+]
+
+CALCULATED_TIME_OPTIONS = [
+    {"display": "Every 24 Hours [SAFEST]", "value": 1440},
+    {"display": "Every 12 Hours [NORMAL]", "value": 720},
+    {"display": "Every 6 Hours [RISKY]", "value": 360},
 ]
 
 DRIVER_ARGUMENTS = [

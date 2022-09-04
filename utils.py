@@ -1,24 +1,11 @@
-import json
-
-
-def read_file(file: str) -> any:
-    try:
-        with open(file, "r+", encoding="utf-8") as f:
-            extension = file.split(".")[-1].lower()
-
-            if extension == "json":
-                return json.load(f)
-
-            if extension == "txt":
-                return f.readlines()
-
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        return
+import os
 
 
 def get_input(prompt: str, options: list = []) -> str:
     while True:
         try:
+            os.system("cls")
+
             print(prompt)
 
             if not options:
@@ -39,10 +26,3 @@ def get_input(prompt: str, options: list = []) -> str:
 
         except ValueError:
             continue
-
-
-def create_json_file(filename: str, content) -> None:
-    with open(f"{filename}.json", "a+", encoding="utf-8") as f:
-        f.truncate(0)
-        f.seek(0)
-        json.dump(content, f, indent=4)

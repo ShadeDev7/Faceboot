@@ -1,14 +1,14 @@
 import os
 
 from classes import Bot
-from functions import get_config, create_config
+from functions import create_config
 from constants import VERSION
 
 
 def main() -> None:
     os.system(f"title Facebook Bot v{VERSION} by ShadeDev7")
 
-    config = get_config() or create_config()
+    config = create_config()
 
     bot = Bot(config)
     bot.login()
