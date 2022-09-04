@@ -8,12 +8,20 @@ from constants import VERSION
 def main() -> None:
     os.system(f"title Facebook Bot v{VERSION} by ShadeDev7")
 
-    config = create_config()
+    bot = Bot(create_config())
 
-    bot = Bot(config)
-    bot.login()
+    while True:
+        if bot.invalid_credentials or bot.error:
+            break
 
-    os.system("pause")
+        logged = bot.login()
+
+        if not logged:
+            continue
+
+        # Only for testing purposes.
+        os.system("pause")
+        break
 
 
 if __name__ == "__main__":
