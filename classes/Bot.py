@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,6 +12,7 @@ from selenium.common.exceptions import (
 
 from .Logger import Logger
 from locators import Locators
+from cooldowns import Cooldowns
 from constants import DRIVER_ARGUMENTS, BROWSER_URL, LOADING_TIMEOUT
 
 
@@ -21,7 +24,10 @@ class Bot:
         self.__logger = Logger()
         self.__driver = self.__initialize_driver()
 
-        self.__logger.log(f"Welcome, {self.__username}!", "DEBUG")
+        self.invalid_credentials = None
+        self.error = False
+
+        self.__logger.log(f"Welcome to Faceboot!", "DEBUG")
         self.__driver.get("https://mbasic.facebook.com")
 
     def __initialize_driver(self) -> Chrome:
@@ -31,6 +37,7 @@ class Bot:
 
         options = ChromeOptions()
         options.binary_location = BROWSER_URL
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
         for argument in arguments:
             options.add_argument(argument)
@@ -50,9 +57,14 @@ class Bot:
             return False
 
     def login(self) -> bool:
-        loaded = self.__await_element_load(Locators.LOGIN_FORM)
+        if not self.__await_element_load(Locators.LOGIN_FORM):
+            self.__logger.log(
+                f"Couldn't load the login page... Trying again in {Cooldowns.LOGIN} seconds!",
+                "ERROR",
+            )
 
-        if not loaded:
+            time.sleep(Cooldowns.LOGIN)
+
             return False
 
         try:
@@ -67,15 +79,29 @@ class Bot:
             loggin_button = self.__driver.find_element(*Locators.LOGIN_BUTTON)
             loggin_button.click()
 
-            self.__logger.log("Logged in.", "EVENT")
+            if not self.__await_element_load(Locators.ONE_TOUCH_LOGIN_SCREEN):
+                self.__logger.log(
+                    f"Invalid username or password.",
+                    "ERROR",
+                )
+
+                self.invalid_credentials = True
+
+                return False
+
+            username = self.__driver.find_element(*Locators.USERNAME).text
+
+            self.__logger.log(f"Logged in as {username}.", "EVENT")
 
             return True
         except (
             NoSuchElementException,
             ElementNotInteractableException,
-        ) as e:
-            print(e, e.__class__, "@login")  # Only for testing purposes.
+        ):
+            self.__logger.log(
+                "Couldn't log in, please contact the developers!", "ERROR"
+            )
 
-            self.__logger.log("Couldn't log in.", "ERROR")
+            self.error = True
 
             return False
