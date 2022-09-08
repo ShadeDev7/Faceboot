@@ -11,15 +11,15 @@ MODE_OPTIONS = [
 ]
 
 STATIC_TIME_OPTIONS = [
-    {"display": "Every 60 Minutes [SAFEST]", "value": 60},
-    {"display": "Every 30 Minutes [NORMAL]", "value": 30},
-    {"display": "Every 15 Minutes [RISKY]", "value": 15},
+    {"display": "Every 60 Minutes [SAFEST]", "value": 3600},
+    {"display": "Every 30 Minutes [NORMAL]", "value": 1800},
+    {"display": "Every 15 Minutes [RISKY]", "value": 900},
 ]
 
 CALCULATED_TIME_OPTIONS = [
-    {"display": "Every 24 Hours [SAFEST]", "value": 1440},
-    {"display": "Every 12 Hours [NORMAL]", "value": 720},
-    {"display": "Every 6 Hours [RISKY]", "value": 360},
+    {"display": "Every 24 Hours [SAFEST]", "value": 86400},
+    {"display": "Every 12 Hours [NORMAL]", "value": 43200},
+    {"display": "Every 6 Hours [RISKY]", "value": 21600},
 ]
 
 DRIVER_ARGUMENTS = [
@@ -34,3 +34,7 @@ DRIVER_ARGUMENTS = [
 BROWSER_URL = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
 
 LOADING_TIMEOUT = 15
+
+IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+MAX_IMAGE_SIZE = 2048
+MAX_IMAGES = 3
