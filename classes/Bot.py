@@ -1,9 +1,11 @@
+import os
 import time
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     TimeoutException,
     NoSuchElementException,
@@ -13,7 +15,16 @@ from selenium.common.exceptions import (
 from .Logger import Logger
 from locators import Locators
 from cooldowns import Cooldowns
-from constants import DRIVER_ARGUMENTS, BROWSER_URL, LOADING_TIMEOUT
+from constants import (
+    DRIVER_ARGUMENTS,
+    BROWSER_URL,
+    LOADING_TIMEOUT,
+    IMAGE_EXTENSIONS,
+    MAX_IMAGE_SIZE,
+    MAX_IMAGES,
+)
+from utils import is_valid_group_url, get_group_id
+from exceptions import EmptyFileException, CouldNotSendPostException
 
 
 class Bot:
@@ -21,14 +32,75 @@ class Bot:
         self.__username = config["username"]
         self.__password = config["password"]
         self.__headless = not config["visuals"]
+        self.__mode = config["mode"]
+        self.__groups = self.__get_groups()
+        self.__message = self.__get_message()
+        self.__images = self.__get_images()
+        self.__sleep_time = (
+            config["ST"] if self.__mode == "ST" else config["CT"] // len(self.__groups)
+        )
         self.__logger = Logger()
         self.__driver = self.__initialize_driver()
 
         self.invalid_credentials = None
         self.error = False
 
+        os.system("cls")
         self.__logger.log(f"Welcome to Faceboot!", "DEBUG")
         self.__driver.get("https://mbasic.facebook.com")
+
+    def __get_groups(self) -> list[str]:
+        while True:
+            try:
+                with open("groups.txt", "r", encoding="utf-8") as f:
+                    groups = []
+
+                    for line in f.readlines():
+                        group_url = line.replace("\n", "").strip().lower()
+
+                        if is_valid_group_url(group_url):
+                            groups.append(group_url)
+
+                    if not groups:
+                        raise EmptyFileException
+
+                    return groups
+            except FileNotFoundError:
+                self.__logger.log(
+                    f"Groups.txt file not found or is invalid... Trying again in {Cooldowns.GET_FILE} seconds!",
+                    "ERROR",
+                )
+
+                time.sleep(Cooldowns.GROUPS_FILE)
+
+    def __get_message(self) -> list[str]:
+        while True:
+            try:
+                with open("message.txt", "r", encoding="utf-8") as f:
+                    messages = [line.strip() for line in f.readlines()]
+
+                    if not messages or not "".join(messages):
+                        raise EmptyFileException
+
+                    return messages
+            except (FileNotFoundError, EmptyFileException):
+                self.__logger.log(
+                    f"Message.txt file not found or is invalid... Trying again in {Cooldowns.GET_FILE} seconds!",
+                    "ERROR",
+                )
+
+                time.sleep(Cooldowns.GET_FILE)
+
+    def __get_images(self) -> list:
+        abs_path = os.path.abspath(os.getcwd())
+
+        return [
+            f"{abs_path}\\{f}"
+            for f in os.listdir(".")
+            if os.path.isfile(f)
+            and f.split(".")[-1].lower() in IMAGE_EXTENSIONS
+            and os.stat(f).st_size // 1024 <= MAX_IMAGE_SIZE
+        ]
 
     def __initialize_driver(self) -> Chrome:
         arguments = (
@@ -56,6 +128,18 @@ class Bot:
         except TimeoutException:
             return False
 
+    def __await_redirect(self) -> bool:
+        start_time = time.time()
+
+        while True:
+            if "_rdr" in self.__driver.current_url:
+                return True
+
+            if time.time() - start_time >= (LOADING_TIMEOUT * 1000):
+                return False
+
+            time.sleep(0.5)
+
     def login(self) -> bool:
         if not self.__await_element_load(Locators.LOGIN_FORM):
             self.__logger.log(
@@ -66,7 +150,6 @@ class Bot:
             time.sleep(Cooldowns.LOGIN)
 
             return False
-
         try:
             username_input = self.__driver.find_element(*Locators.USERNAME_INPUT)
             username_input.click()
@@ -105,3 +188,59 @@ class Bot:
             self.error = True
 
             return False
+
+    def start_posting(self) -> None:
+        for group in self.__groups:
+            try:
+                self.__driver.get(group)
+
+                if not self.__await_element_load(Locators.GROUP_HEADER):
+                    raise CouldNotSendPostException
+
+                group_name = self.__driver.find_element(*Locators.GROUP_NAME).text
+
+                self.__logger.log(f"Sending post to {group_name}...", "DEBUG")
+
+                message_input = self.__driver.find_element(*Locators.MESSAGE_INPUT)
+
+                for line in self.__message:
+                    message_input.send_keys(line)
+
+                if self.__images:
+                    self.__driver.find_element(*Locators.CAMERA_BUTTON).click()
+
+                    if not self.__await_element_load(Locators.IMAGES_FORM):
+                        raise CouldNotSendPostException
+
+                    for i in range(min(len(self.__images), MAX_IMAGES)):
+                        self.__driver.find_element(By.NAME, f"file{i+1}").send_keys(
+                            self.__images[i]
+                        )
+
+                    self.__driver.find_element(*Locators.ADD_IMAGES_BUTTON).click()
+
+                    if not self.__await_element_load(Locators.POST_BUTTON):
+                        raise CouldNotSendPostException
+
+                self.__driver.find_element(*Locators.POST_BUTTON).click()
+
+                if not self.__await_redirect():
+                    raise CouldNotSendPostException
+
+                self.__logger.log(
+                    f"Post sent successfully. Now sleeping for {self.__sleep_time // 60} minutes!",
+                    "EVENT",
+                )
+
+                time.sleep(self.__sleep_time)
+            except (
+                NoSuchElementException,
+                ElementNotInteractableException,
+                CouldNotSendPostException,
+            ):
+                self.__logger.log(
+                    f"Couldn't send post to group with id {get_group_id(group)}!",
+                    "ERROR",
+                )
+
+                continue

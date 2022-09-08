@@ -6,7 +6,7 @@ from constants import VERSION
 
 
 def main() -> None:
-    os.system(f"title Facebook Bot v{VERSION} by ShadeDev7")
+    os.system(f"title Faceboot v{VERSION} by ShadeDev7")
 
     bot = Bot(create_config())
 
@@ -18,6 +18,8 @@ def main() -> None:
 
         if not logged:
             continue
+
+        bot.start_posting()
 
         # Only for testing purposes.
         os.system("pause")
