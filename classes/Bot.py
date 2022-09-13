@@ -93,13 +93,22 @@ class Bot:
 
     def __get_images(self) -> list:
         abs_path = os.path.abspath(os.getcwd())
+        images = []
+
+        for f in os.listdir("."):
+            is_image = f.split(".")[-1].lower() in IMAGE_EXTENSIONS
+            stat = os.stat(f)
+
+            if not is_image or stat.st_size // 1024 > MAX_IMAGE_SIZE:
+                continue
+
+            images.append({"path": f"{abs_path}\\{f}", "creation_time": stat.st_ctime})
 
         return [
-            f"{abs_path}\\{f}"
-            for f in os.listdir(".")
-            if os.path.isfile(f)
-            and f.split(".")[-1].lower() in IMAGE_EXTENSIONS
-            and os.stat(f).st_size // 1024 <= MAX_IMAGE_SIZE
+            image["path"]
+            for image in sorted(
+                images, key=lambda image: image["creation_time"], reverse=True
+            )
         ]
 
     def __initialize_driver(self) -> Chrome:
@@ -205,7 +214,7 @@ class Bot:
 
                 for line in self.__message:
                     message_input.send_keys(line)
-
+                print(self.__images)
                 if self.__images:
                     self.__driver.find_element(*Locators.CAMERA_BUTTON).click()
 
