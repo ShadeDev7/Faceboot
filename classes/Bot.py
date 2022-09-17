@@ -214,7 +214,7 @@ class Bot:
 
                 for line in self.__message:
                     message_input.send_keys(line)
-                print(self.__images)
+
                 if self.__images:
                     self.__driver.find_element(*Locators.CAMERA_BUTTON).click()
 

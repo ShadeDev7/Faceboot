@@ -8,7 +8,7 @@ class Locators:
     LOGIN_BUTTON = (By.NAME, "login")
     ONE_TOUCH_LOGIN_SCREEN = (
         By.XPATH,
-        '//form[@action="/login/device-based/update-nonce/"]',
+        '//form[@method="post"]',
     )
     USERNAME = (
         By.XPATH,
