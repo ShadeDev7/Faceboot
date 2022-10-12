@@ -8,7 +8,7 @@ class Locators:
     LOGIN_BUTTON = (By.NAME, "login")
     ONE_TOUCH_LOGIN_SCREEN = (
         By.XPATH,
-        '//form[@method="post"]',
+        '//table[@role="presentation"]/tbody/tr/td/div/img',
     )
     USERNAME = (
         By.XPATH,

@@ -1,8 +1,7 @@
 __pycache__
+build
 *.txt
-*.jpg
-*.jpeg
-*.png
-*.webp
-chromedriver.exe
-logs
+src/*.jpg
+src/*.jpeg
+src/*.png
+src/*.webp
